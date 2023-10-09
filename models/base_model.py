@@ -13,29 +13,27 @@ class BaseModel:
     """
     __nb_objects = 0
 
-    def __init__(self, id=None):
+    def __init__(self, *args, **kwargs):
         """
         function Desc:  init
         """
-        if id is None:
+        if kwargs:
+            for key, value in kwargs.items():
+                if key != "__class__":
+                    if key == "created_at" or key == "updated_at":
+                        setattr(self, key, datetime.datetime.strptime(value, "%Y-%m-%dT%H:%M:%S.%f"))
+                    else:
+                        setattr(self, key, value)
+        else:
             BaseModel.__nb_objects += 1
             self.my_number = BaseModel.__nb_objects
             self.created_at = datetime.datetime.now()
             self.updated_at = self.created_at
             self.id = str(uuid.uuid4())
-        else:
-            self.id = id
-            self.class_type = self.__class__
 
     def __str__(self):
         """Override string to provide a better description."""
-        # Create the ordered dictionary based on the desired order
-        desired_order = ["my_number", "name",  "__class__", "updated_at", "id",
-                         "created_at"]
-        ordered_dict = {key: self.__dict__[key] for key in desired_order
-                        if key in self.__dict__}
-
-        return f"[{self.__class__.__name__}]({self.id}){ordered_dict}"
+        return f"[{self.__class__.__name__}]({self.id}) {self.to_dict()}"
 
     def save(self):
         """update public instance attribute updated_at by current datetime"""
@@ -43,14 +41,40 @@ class BaseModel:
 
     def to_dict(self):
         """Return dictionary contains keys/values, __dict__, the instance """
-        dict_rep = self.__dict__.copy()
-        dict_rep['created_at'] = self.created_at.isoformat()
-        dict_rep['updated_at'] = self.updated_at.isoformat()
-        # Add the class type
-        dict_rep['__class__'] = self.__class__.__name__
+        dict_rep = {
+            "my_number": self.my_number,
+            "name": getattr(self, "name", ""),
+            "__class__": self.__class__.__name__,
+            "updated_at": self.updated_at.isoformat(),
+            "id": self.id,
+            "created_at": self.created_at.isoformat()
+        }
+        return dict_rep
 
-        desired_order = ["my_number", "name", "__class__", "updated_at",
-                         "id", "created_at"]
-        ordered_dict = {key: dict_rep[key] for key in desired_order
-                        if key in dict_rep}
-        return ordered_dict
+
+if __name__ == "__main__":
+    my_model = BaseModel()
+    my_model.name = "My_First_Model"
+    my_model.my_number = 89
+    print(my_model.id)
+    print(my_model)
+    print(type(my_model.created_at))
+    print("--")
+
+    my_model_json = my_model.to_dict()
+    print(my_model_json)
+    print("JSON of my_model:")
+    for key in my_model_json.keys():
+        print("\t{}: ({}) - {}".format(key, type(my_model_json[key]), my_model_json[key]))
+
+    print("--")
+
+    my_new_model = BaseModel(**my_model_json)
+    print(my_new_model.id)
+    print(my_new_model)
+    print(type(my_new_model.created_at))
+
+    print("--")
+
+    print(my_model is my_new_model)
+
