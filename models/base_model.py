@@ -13,27 +13,30 @@ class BaseModel:
     """
     __nb_objects = 0
 
-    def __init__(self, id=None):
+    def __init__(self, *args, **kwargs):
         """
         function Desc:  init
         """
-        if id is None:
+        if kwargs:
+            for key, value in kwargs.items():
+                if key != "__class__":
+                    setattr(self, key, value)
+            if "created_at" in kwargs:
+                self.created_at = datetime.datetime.strptime(kwargs["created_at"], "%Y-%m-%dT%H:%M:%S.%f")
+            if "updated_at" in kwargs:
+                self.updated_at = datetime.datetime.strptime(kwargs["updated_at"], "%Y-%m-%dT%H:%M:%S.%f")
+        else:
             BaseModel.__nb_objects += 1
             self.my_number = BaseModel.__nb_objects
             self.created_at = datetime.datetime.now()
             self.updated_at = self.created_at
             self.id = str(uuid.uuid4())
-        else:
-            self.id = id
-            self.class_type = self.__class__
 
     def __str__(self):
         """Override string to provide a better description."""
         # Create the ordered dictionary based on the desired order
-        desired_order = ["my_number", "name",  "__class__", "updated_at", "id",
-                         "created_at"]
-        ordered_dict = {key: self.__dict__[key] for key in desired_order
-                        if key in self.__dict__}
+        desired_order = ["my_number", "name",  "__class__", "updated_at", "id", "created_at"]
+        ordered_dict = {key: self.__dict__[key] for key in desired_order if key in self.__dict__}
 
         return f"[{self.__class__.__name__}]({self.id}){ordered_dict}"
 
@@ -49,8 +52,7 @@ class BaseModel:
         # Add the class type
         dict_rep['__class__'] = self.__class__.__name__
 
-        desired_order = ["my_number", "name", "__class__", "updated_at",
-                         "id", "created_at"]
-        ordered_dict = {key: dict_rep[key] for key in desired_order
-                        if key in dict_rep}
+        desired_order = ["my_number", "name", "__class__", "updated_at", "id", "created_at"]
+        ordered_dict = {key: dict_rep[key] for key in desired_order if key in dict_rep}
         return ordered_dict
+
