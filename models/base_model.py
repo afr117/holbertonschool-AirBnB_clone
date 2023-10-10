@@ -4,8 +4,7 @@ Module Doc: Base Class for all other classes
 """
 import json
 import datetime
-import uuid
-
+import uuid 
 
 class BaseModel:
     """
