@@ -4,7 +4,7 @@ import os
 from models.base_model import BaseModel
 
 class FileStorage:
-    __file_path = "file.json"
+    __file_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "file.json")
     __objects = {}
 
     def all(self):
@@ -21,7 +21,9 @@ class FileStorage:
         new_dict = {}
         for key, value in FileStorage.__objects.items():
             new_dict[key] = value.to_dict()
+
         with open(FileStorage.__file_path, 'w', encoding='utf-8') as file:
+            print(f"JSON file created at {FileStorage.__file_path}")
             json.dump(new_dict, file)
 
     def reload(self):
