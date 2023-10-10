@@ -5,6 +5,7 @@ Module Doc: Base Class for all other classes
 import json
 import datetime
 import uuid 
+from models import storage
 
 class BaseModel:
     """
@@ -37,6 +38,7 @@ class BaseModel:
     def save(self):
         """update public instance attribute updated_at by current datetime"""
         self.updated_at = datetime.datetime.now()
+        storage.save()
 
     def to_dict(self):
         """Return dictionary contains keys/values, __dict__, the instance """
@@ -55,6 +57,7 @@ if __name__ == "__main__":
     my_model = BaseModel()
     my_model.name = "My_First_Model"
     my_model.my_number = 89
+    my_model.save()
     print(my_model.id)
     print(my_model)
     print(type(my_model.created_at))

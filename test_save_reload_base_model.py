@@ -1,9 +1,9 @@
 #!/usr/bin/python3
 
 import os
-from models.base_model import BaseModel
 from models import storage
-from models.engine.file_storage import FileStorage
+from models.base_model import BaseModel
+
 # Check if the storage object is properly initialized
 if storage is None:
     print("Storage object is not properly initialized.")

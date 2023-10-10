@@ -1,10 +1,9 @@
 #!/usr/bin/python3
 import json
 import os
-from models.base_model import BaseModel
 
 class FileStorage:
-    __file_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "file.json")
+    __file_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', '..', 'file.json')
     __objects = {}
 
     def all(self):
@@ -17,14 +16,20 @@ class FileStorage:
         FileStorage.__objects[key] = obj
 
     def save(self):
-        """Serializes __objects to the JSON file (path: __file_path)"""
-        new_dict = {}
-        for key, value in FileStorage.__objects.items():
-            new_dict[key] = value.to_dict()
+        serializable_objects = {}
+    
+        for key, value in self.__objects.items():
+            # Convert the object's dictionary to a serializable format
+            obj_dict = value.copy()  # Assuming the value is a dictionary
+            if 'created_at' in obj_dict and isinstance(obj_dict['created_at'], datetime.datetime):
+                obj_dict['created_at'] = obj_dict['created_at'].isoformat()
+            if 'updated_at' in obj_dict and isinstance(obj_dict['updated_at'], datetime.datetime):
+                obj_dict['updated_at'] = obj_dict['updated_at'].isoformat()
 
-        with open(FileStorage.__file_path, 'w', encoding='utf-8') as file:
-            print(f"JSON file created at {FileStorage.__file_path}")
-            json.dump(new_dict, file)
+            serializable_objects[key] = obj_dict
+
+        with open(self.__file_path, 'w') as file:
+            json.dump(serializable_objects, file)
 
     def reload(self):
         """Deserializes the JSON file to __objects"""
