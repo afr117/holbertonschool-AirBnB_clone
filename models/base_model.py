@@ -30,6 +30,7 @@ class BaseModel:
             self.created_at = datetime.datetime.now()
             self.updated_at = self.created_at
             self.id = str(uuid.uuid4())
+            storage.new(self)
 
     def __str__(self):
         """Override string to provide a better description."""
