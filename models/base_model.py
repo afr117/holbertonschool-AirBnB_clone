@@ -52,7 +52,6 @@ class BaseModel:
         }
         return dict_rep
 
-
 if __name__ == "__main__":
     my_model = BaseModel()
     my_model.name = "My_First_Model"
