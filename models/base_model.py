@@ -2,10 +2,11 @@
 """
 Module Doc: Base Class for all other classes
 """
+
 import json
 import datetime
-import uuid 
-from models import storage
+import uuid
+import os
 
 class BaseModel:
     """
@@ -17,10 +18,11 @@ class BaseModel:
         """
         function Desc:  init
         """
+        from models import storage  # Import here to avoid circular import
         if kwargs:
             for key, value in kwargs.items():
                 if key != "__class__":
-                    if key == "created_at" or key == "updated_at":
+                    if key in ("created_at", "updated_at") and isinstance(value, str):
                         setattr(self, key, datetime.datetime.strptime(value, "%Y-%m-%dT%H:%M:%S.%f"))
                     else:
                         setattr(self, key, value)
@@ -38,11 +40,12 @@ class BaseModel:
 
     def save(self):
         """update public instance attribute updated_at by current datetime"""
+        from models import storage  # Import here to avoid circular import
         self.updated_at = datetime.datetime.now()
-        storage.save()
+        storage.save()  # Use the storage module here
 
     def to_dict(self):
-        """Return dictionary contains keys/values, __dict__, the instance """
+        """Return dictionary contains keys/values, __dict__, the instance"""
         dict_rep = {
             "my_number": self.my_number,
             "name": getattr(self, "name", ""),

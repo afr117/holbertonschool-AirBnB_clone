@@ -1,7 +1,9 @@
 #!/usr/bin/python3
+
 import json
-import os
-import datetime  # Import datetime module
+import os  # Import the os module
+import datetime
+from models.base_model import BaseModel
 
 class FileStorage:
     __file_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', '..', 'file.json')
@@ -18,7 +20,7 @@ class FileStorage:
 
     def save(self):
         serializable_objects = {}
-    
+
         for key, value in self.__objects.items():
             # Convert the object's dictionary to a serializable format
             obj_dict = value.to_dict()
@@ -33,11 +35,11 @@ class FileStorage:
             with open(FileStorage.__file_path, 'r', encoding='utf-8') as file:
                 data = json.load(file)
                 for key, value in data.items():
-                    # Convert string representation back to datetime objects
+                    # Convert string representation back to datetime objects using strptime
                     if 'created_at' in value:
-                        value['created_at'] = datetime.fromisoformat(value['created_at'])
+                        value['created_at'] = datetime.datetime.strptime(value['created_at'], "%Y-%m-%dT%H:%M:%S.%f")
                     if 'updated_at' in value:
-                        value['updated_at'] = datetime.fromisoformat(value['updated_at'])
+                        value['updated_at'] = datetime.datetime.strptime(value['updated_at'], "%Y-%m-%dT%H:%M:%S.%f")
                     class_name, obj_id = key.split('.')
                     obj = BaseModel(**value)
-                    FileStorage.__objects[key] = obj
+

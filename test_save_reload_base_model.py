@@ -21,12 +21,15 @@ my_model = BaseModel()
 my_model.name = "My_First_Model"
 my_model.my_number = 89
 my_model.save()
-
 print(my_model)
 
 # Check if the save method is called
 print("After saving, checking if the JSON file exists:")
+storage.save()
 if os.path.exists(storage._FileStorage__file_path):
     print("JSON file exists.")
+    with open(storage._FileStorage__file_path, 'r', encoding='utf-8') as file:
+        data = file.read()
+        print(data)
 else:
     print("JSON file does not exist.")
