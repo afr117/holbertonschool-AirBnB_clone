@@ -1,87 +1,108 @@
-#!/usr/bin/env python3
-"""
-this is a shell in python
-"""
 import cmd
-import shlex
-from models.user import User  # Import the User class
 from models import storage
+from models.user import User
 
-
-class HBNBCommand(cmd.Cmd):
-    """
-    A simple command interpreter for the AirBnB project.
-    """
+class Console(cmd.Cmd):
     prompt = "(hbnb) "
-    
-    def do_create(self, args):
-        """
-        Creates a new instance of BaseModel, saves it (to the JSON file) and prints the id.
-        """
-        if not args:
+
+    def emptyline(self):
+        pass
+
+    def do_create(self, arg):
+        """Creates a new instance of BaseModel, saves it, and prints the id"""
+        if not arg:
             print("** class name missing **")
-            return
-        try:
-            if args == "User":
-                new_instance = User()
+        else:
+            class_name = arg.split()[0]
+            if class_name in self.classes:
+                new_instance = self.classes[class_name]()
                 new_instance.save()
                 print(new_instance.id)
             else:
                 print("** class doesn't exist **")
-        except Exception as e:
-            print(e)
 
-    def do_show(self, args):
-        """
-        Prints the string representation of an instance based on the class name and id.
-        """
-        if not args:
+    def do_show(self, arg):
+        """Prints the string representation of an instance based on the class name and id"""
+        if not arg:
             print("** class name missing **")
-            return
-        try:
-            args_list = shlex.split(args)
-            if len(args_list) == 2:
-                if args_list[0] == "User":
-                    obj_key = "{}.{}".format(args_list[0], args_list[1])
-                    obj = storage.all().get(obj_key)
-                    if obj:
-                        print(obj)
-                    else:
-                        print("** no instance found **")
-                else:
-                    print("** class doesn't exist **")
-            else:
+        else:
+            args = arg.split()
+            if args[0] not in self.classes:
+                print("** class doesn't exist **")
+            elif len(args) < 2:
                 print("** instance id missing **")
-        except Exception as e:
-            print(e)
+            else:
+                key = "{}.{}".format(args[0], args[1])
+                objects = storage.all()
+                if key in objects:
+                    print(objects[key])
+                else:
+                    print("** no instance found **")
 
-    def do_destroy(self, args):
-        """
-        Deletes an instance based on the class name and id.
-        """
-        if not args:
+    def do_destroy(self, arg):
+        """Deletes an instance based on the class name and id"""
+        if not arg:
             print("** class name missing **")
-            return
-        try:
-            args_list = shlex.split(args)
-            if len(args_list) == 2:
-                if args_list[0] == "User":
-                    obj_key = "{}.{}".format(args_list[0], args_list[1])
-                    obj_dict = storage.all()
-                    if obj_key in obj_dict:
-                        del obj_dict[obj_key]
-                        storage.save()
-                    else:
-                        print("** no instance found **")
-                else:
-                    print("** class doesn't exist **")
-            else:
+        else:
+            args = arg.split()
+            if args[0] not in self.classes:
+                print("** class doesn't exist **")
+            elif len(args) < 2:
                 print("** instance id missing **")
-        except Exception as e:
-            print(e)
+            else:
+                key = "{}.{}".format(args[0], args[1])
+                objects = storage.all()
+                if key in objects:
+                    del objects[key]
+                    storage.save()
+                else:
+                    print("** no instance found **")
 
-    # Add methods for 'update' and 'all' specific to the User class
+    def do_all(self, arg):
+        """Prints all string representation of all instances based on the class name"""
+        objects = storage.all()
+        if not arg:
+            print([str(obj) for obj in objects.values()])
+        else:
+            args = arg.split()
+            if args[0] not in self.classes:
+                print("** class doesn't exist **")
+            else:
+                print([str(obj) for obj in objects.values() if obj.__class__.__name__ == args[0])
+
+    def do_update(self, arg):
+        """Updates an instance based on the class name and id by adding or updating attribute"""
+        if not arg:
+            print("** class name missing **")
+        else:
+            args = arg.split()
+            if args[0] not in self.classes:
+                print("** class doesn't exist **")
+            elif len(args) < 2:
+                print("** instance id missing **")
+            else:
+                key = "{}.{}".format(args[0], args[1])
+                objects = storage.all()
+                if key not in objects:
+                    print("** no instance found **")
+                elif len(args) < 3:
+                    print("** attribute name missing **")
+                elif len(args) < 4:
+                    print("** value missing **")
+                else:
+                    setattr(objects[key], args[2], args[3])
+                    storage.save()
+
+    def do_quit(self, arg):
+        """Exit the command interpreter"""
+        return True
+
+    def do_EOF(self, arg):
+        """Exit the command interpreter when reading EOF (Ctrl-D)"""
+        print("")
+        return True
 
 if __name__ == '__main__':
-    HBNBCommand().cmdloop()
+    console = Console()
+    console.cmdloop()
 

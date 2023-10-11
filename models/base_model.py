@@ -45,16 +45,16 @@ class BaseModel:
         storage.save()  # Use the storage module here
 
     def to_dict(self):
-        """Return a dictionary containing keys/values, __dict__, the instance"""
-        dict_rep = {
-            "my_number": self.my_number,
-            "name": getattr(self, "name", ""),
-            "__class__": self.__class__.__name__,
-            "updated_at": self.updated_at.isoformat(),
-            "id": self.id,
-            "created_at": self.created_at.isoformat()
-        }
+        """Return a dictionary containing keys/values of the instance attributes."""
+        dict_rep = self.__dict__.copy()
+        dict_rep['__class__'] = self.__class__.__name__
+        dict_rep['created_at'] = self.created_at.isoformat()
+        dict_rep['updated_at'] = self.updated_at.isoformat()
+        dict_rep['id'] = self.id
+        dict_rep['my_number'] = self.my_number
+        dict_rep['name'] = self.name
         return dict_rep
+
 
 if __name__ == "__main__":
     my_model = BaseModel()

@@ -9,39 +9,29 @@ from models.user import User
 class FileStorage:
     __file_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', '..', 'file.json')
     __objects = {}
-    
-    # Add a class variable to store all available classes
+
     all_classes = {
         'BaseModel': BaseModel,
-        'User': User,
-        # Add other model classes here if you have more
+        'User': User
     }
 
     def all(self):
-        """Returns the dictionary __objects"""
-        return FileStorage.__objects
         return self.__objects
 
     def new(self, obj):
-        """Sets in __objects the obj with key <obj class name>.id"""
-        key = f"{obj.__class__.__name__}.{obj.id}"
+        key = "{}.{}".format(obj.__class__.__name__, obj.id)
         FileStorage.__objects[key] = obj
 
     def save(self):
-        """Serializes __objects to the JSON file"""
-        serializable_objects = {} 
+        serializable_objects = {}
         for key, value in FileStorage.__objects.items():
             obj_dict = value.to_dict()
             serializable_objects[key] = obj_dict
 
-        with open(self.__file_path, 'a') as file:
-            if file.tell() != 0:
-                file.write('\n')
-
+        with open(self.__file_path, 'w') as file:
             json.dump(serializable_objects, file, default=str)
 
     def reload(self):
-        """Deserializes the JSON file to __objects"""
         try:
             with open(self.__file_path, 'r') as file:
                 self.__objects = json.load(file)
