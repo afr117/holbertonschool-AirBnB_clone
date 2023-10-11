@@ -4,14 +4,23 @@ import json
 import os
 import datetime
 from models.base_model import BaseModel
+from models.user import User
 
 class FileStorage:
     __file_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', '..', 'file.json')
     __objects = {}
+    
+    # Add a class variable to store all available classes
+    all_classes = {
+        'BaseModel': BaseModel,
+        'User': User,
+        # Add other model classes here if you have more
+    }
 
     def all(self):
         """Returns the dictionary __objects"""
         return FileStorage.__objects
+        return self.__objects
 
     def new(self, obj):
         """Sets in __objects the obj with key <obj class name>.id"""
