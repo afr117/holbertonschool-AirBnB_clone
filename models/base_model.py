@@ -39,13 +39,13 @@ class BaseModel:
         return f"[{self.__class__.__name__}]({self.id}) {self.to_dict()}"
 
     def save(self):
-        """update public instance attribute updated_at by current datetime"""
+        """update public instance attribute updated_at by the current datetime"""
         from models import storage  # Import here to avoid circular import
         self.updated_at = datetime.datetime.now()
         storage.save()  # Use the storage module here
 
     def to_dict(self):
-        """Return dictionary contains keys/values, __dict__, the instance"""
+        """Return a dictionary containing keys/values, __dict__, the instance"""
         dict_rep = {
             "my_number": self.my_number,
             "name": getattr(self, "name", ""),

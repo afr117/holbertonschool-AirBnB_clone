@@ -10,6 +10,9 @@ if storage is None:
 else:
     print("Storage object is properly initialized.")
 
+# Reload objects from the JSON file
+storage.reload()
+
 all_objs = storage.all()
 print("-- Reloaded objects --")
 for obj_id in all_objs.keys():
@@ -23,9 +26,11 @@ my_model.my_number = 89
 my_model.save()
 print(my_model)
 
-# Check if the save method is called
-print("After saving, checking if the JSON file exists:")
+# Save the updated objects to the JSON file
 storage.save()
+
+# Check if the JSON file exists
+print("After saving, checking if the JSON file exists:")
 if os.path.exists(storage._FileStorage__file_path):
     print("JSON file exists.")
     with open(storage._FileStorage__file_path, 'r', encoding='utf-8') as file:
@@ -33,3 +38,4 @@ if os.path.exists(storage._FileStorage__file_path):
         print(data)
 else:
     print("JSON file does not exist.")
+
