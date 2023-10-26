@@ -1,63 +1,51 @@
 #!/usr/bin/python3
-import uuid
+"""Defines the BaseModel class"""
+from uuid import uuid4
 from datetime import datetime
 
+
 class BaseModel:
-    """
-    This is the BaseModel class that defines common attributes/methods for other classes.
-    """
-    def __init__(self):
-        """
-        Initializes a new BaseModel instance with a unique ID and timestamps.
-        """
-        self.id = str(uuid.uuid4())
-        self.created_at = datetime.now()
-        self.updated_at = datetime.now()
+    """Represents BaseModel class all others inherit from"""
 
+    def __init__(self, *args, **kwargs):
+        """ Initializes a BaseModel
+        Param Args: Args - list of arguments
+        kwargs - dictionary of key:value arguments
+        """
+
+        if len(kwargs) != 0:
+            for key, value in kwargs.items():
+                if key == "created_at" or key == "updated_at":
+                    time = datetime.strptime(value, "%Y-%m-%dT%H:%M:%S.%f")
+                    setattr(self, key, time)
+                elif key != "__class__":
+                    setattr(self, key, value)
+        else:
+            self.id = str(uuid4())
+            self.created_at = datetime.now()
+            self.updated_at = datetime.now()
+            FileStorage.new(self)
+		
     def __str__(self):
-        """
-        Returns a string representation of the BaseModel instance.
-        Format: "[<class name>] (<self.id>) <self.__dict__>"
-        """
-        class_name = self.__class__.__name__
-        return "[{}] ({}) {}".format(class_name, self.id, self.__dict__)
-
+	    """print/str representation of BaseModel instance"""
+	    cls_name = type(self).__name__
+	    str_rep = "[{}] ({}) {}".format(cls_name, self.id, self.__dict__)
+	    return (str_rep)
+	    
     def save(self):
-        """
-        Updates the 'updated_at' attribute with the current datetime.
-        """
-        self.updated_at = datetime.now()
+	    """Updates updated_at with current time"""
+	    self.updated_at = datetime.now()
+	    FileStorage.save()
 
     def to_dict(self):
-        """
-        Returns a dictionary representation of the BaseModel instance with the desired key order and ISO format for timestamps.
-        """
-        class_name = self.__class__.__name__
-        key_order = ['my_number', 'name', '__class__', 'updated_at', 'id', 'created_at']
-
-    # Format timestamps to ISO format strings
-        updated_at_iso = self.updated_at.strftime('%Y-%m-%dT%H:%M:%S.%f')[:-3]
-        created_at_iso = self.created_at.strftime('%Y-%m-%dT%H:%M:%S.%f')[:-3]
-
-    # Convert class types to strings
-        class_type_str = str(self.__class__)
-        updated_at_type_str = str(type(self.updated_at))
-        created_at_type_str = str(type(self.created_at))
-
-    # Construct ordered dictionary
-        ordered_dict = {
-            '__class__': class_type_str,
-            'id': self.id,
-            'created_at': created_at_iso,
-            'updated_at': updated_at_iso,
-            '__class__': class_type_str,
-            '__updated_at__': updated_at_type_str,
-            '__created_at__': created_at_type_str,
-            **self.__dict__
-    }
-
-    # Create a dictionary with the desired key order
-        sorted_dict = {k: ordered_dict[k] for k in key_order}
-        return sorted_dict
-
-
+	    """returns dictionary key/value list of __dict__"""
+	    dict_rep = {}
+	    time_format = datetime.isoformat
+	    for key in self.__dict__:
+		    value = self.__dict__[key]
+		    if key == "created_at" or key == "updated_at":
+			    dict_rep[key] = str(time_format(value))
+		    else:
+			    dict_rep[key] = value
+			    dict_rep["__class__"] = type(self).__name__
+			    return dict_rep
